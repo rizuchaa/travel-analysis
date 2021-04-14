@@ -4,5 +4,5 @@ contributed by Zahier Nasrudin @mhdzahier<br><br>
 
 You can review the result on https://rarizukii.shinyapps.io/travelinsurance/
 <br>
-2021-04-15.png
+![Beta version of Travel Insurance Analysis Dahboard]()
 

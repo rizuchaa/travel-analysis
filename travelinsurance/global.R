@@ -6,7 +6,7 @@
 
 library(bs4Dash)
 library(shiny)
-library(plotly)
+# library(plotly)
 library(tidyverse)
 library(dplyr)
 library(thematic)
@@ -15,25 +15,42 @@ library(ggiraph)
 library(ggplot2)
 library(reshape2)
 library(DT)
-
+library(highcharter)
+library(htmlwidgets)
 # Dataset ----------------------------------------------------------------------
 travel <- read.csv("data/travel_insurance.csv")
+
 names(travel)[names(travel)=="Destination"]<-"Country"
+names(travel)[names(travel)=="Commision..in.value."]<-"Commision"
+
+travel <- travel%>%
+  filter(!grepl("-",Duration) & !grepl("118",Age))
+
 travel$Gender[travel$Gender==""]<-"NB"
+
 travel <- travel%>%
   mutate_if(is.character,as.factor)
-data<-read.csv("travelinsurance/data/countries_codes_and_coordinates.csv")
-sv<-left_join(travel,data, by='Country')
-View(sv)
+data<-read.csv("data/countries_codes_and_coordinates.csv")
+
 
 # plot 1 -----------------------------------------------------------------------
-plot1 <-travel%>%
-  plot_ly(
-    x = ~Duration, y = ~Commision..in.value.,
-    color = ~Product.Name, size = ~Age,
-    text = ~paste0(Product.Name, '<br>Duration: ', Duration, '<br>Commision: ', Commision..in.value.)
-  )%>%
-  layout(showlegend = FALSE)
+# plot1 <-travel%>%
+#   plot_ly(
+#     x = ~Duration, y = ~Commision..in.value.,
+#     color = ~Product.Name, size = ~Age,
+#     text = ~paste0(Product.Name, '<br>Duration: ', Duration, '<br>Commision: ', Commision..in.value.)
+#   )%>%
+#   layout(showlegend = FALSE)
+
+plot1<-travel%>%
+  select(Duration, Commision, Product.Name )
+
+plot1<-highchart()%>%
+  hc_add_series(plot1, "scatter", hcaes(x = Duration, 
+                                        y = Commision, 
+                                        group=Product.Name), 
+                showInLegend=FALSE, tooltip=list(pointFormat="Duration: {point.Duration} Days <br> Commision: SGD{point.Commision} "))
+  
 
 plot1
 
@@ -43,11 +60,7 @@ plot2 <- travel%>%
   select(Claim)%>%
   group_by(Claim)%>% 
   count(Claim, sort = T)%>% 
-  plot_ly(labels = ~Claim, values = ~n)%>% 
-  add_pie(hole = 0.5)%>% 
-  layout(title = "",  showlegend = F,
-                      xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                      yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+  hchart("pie", hcaes(x = Claim, y = n))
 
 plot2
 
@@ -59,20 +72,18 @@ sectors<-travel%>%
   count(Product.Name)%>%
   arrange(desc(n))
   
-plot3 <- plot_ly(
-  type="treemap",
-  labels=~sectors$Product.Name,
-  parents=NA,
-  values=~sectors$n)
+plot3 <- sectors %>%
+  hchart("treemap", hcaes(x = Product.Name, 
+                          value = n)) 
 
 plot3
 
 # Maps -------------------------------------------------------------------------
-plot4 <- plot_ly(travel, 
-                 type='choropleth', 
-                 locations=df$CODE, 
-                 z=df$GDP..BILLIONS., 
-                 text=df$COUNTRY, 
-                 colorscale="Blues")
-
-plot4
+# plot4 <- plot_ly(travel, 
+#                  type='choropleth', 
+#                  locations=df$CODE, 
+#                  z=df$GDP..BILLIONS., 
+#                  text=df$COUNTRY, 
+#                  colorscale="Blues")
+# 
+# plot4

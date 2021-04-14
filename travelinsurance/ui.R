@@ -49,7 +49,7 @@ bod<-bs4DashBody(
         ),
         fluidRow(
             bs4Card(
-                plotlyOutput("plt1"),
+                highchartOutput("plt1"),
                 solidHeader = FALSE,
                 title = "Commision & Duration Ratio",
                 width = 6,
@@ -57,7 +57,7 @@ bod<-bs4DashBody(
                 footer = NULL
             ),
             bs4Card(
-                plotlyOutput("plt2"),
+                highchartOutput("plt2"),
                 solidHeader = FALSE,
                 title = "Insurance Claimed",
                 width = 6,
@@ -66,7 +66,7 @@ bod<-bs4DashBody(
             )
         ),
         bs4Card(
-            plotlyOutput("plt3"),
+            highchartOutput("plt3"),
             solidHeader = FALSE,
             title = "Insurance Packages",
             width = 12,

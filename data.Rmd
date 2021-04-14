@@ -1,0 +1,68 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(plotly)
+library(tidyverse)
+library(dplyr)
+library(thematic)
+library(RColorBrewer)
+library(ggiraph)
+library(ggplot2)
+library(reshape2)
+```
+
+
+```{r}
+travel
+str(travel)
+```
+```
+
+
+```{r}
+ck<-travel%>%
+  plot_ly(x = ~Duration, y = ~Commision..in.value., type = 'scatter', mode = 'markers')%>%
+  add_annotations(
+    text = ~unique(Duration),
+    xref="Duration",
+    yref="Commision"
+  )
+  
+ck
+```
+
+```{r}
+plt_hst <- travel%>%
+  ggplot(aes(x=Commision..in.value.)) + geom_histogram(binwidth=2,colour="black")+
+  facet_grid(Gender ~ Agency.Type, scales="free_y")+
+  labs(
+     y="",
+     x="Commision"
+  )+
+  theme_minimal()
+
+plot2<-ggplotly(plt_hst)
+
+plot2
+```
+
+```{r}
+plot2 <- function(d) {
+  plot_ly(d, x = ~Duration) %>%
+    add_annotations(
+      ~unique(Gender), x = 0.5, y = 1, 
+      xref = "paper", yref = "paper", showarrow = FALSE
+    )
+}
+
+travel %>%
+  split(.$Gender) %>%
+  lapply(plot2) %>% 
+  subplot(nrows = 2, shareX = TRUE, titleX = FALSE) %>%
+  hide_legend()
+```
+
+
